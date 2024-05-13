@@ -1,54 +1,40 @@
+'use strict';
 
+let formData = { email: '', message: '' };
 
-const formData = {
-    email: "",
-    message: ""
+const form = document.querySelector('.feedback-form');
+const formDataKey = 'feedback-form-state';
+let savedFormData = JSON.parse(localStorage.getItem(formDataKey));
+
+form.addEventListener('input', updateFormData);
+
+if (savedFormData) {
+  formData = savedFormData;
 }
 
-const form = document.querySelector(".feedback-form");
-
-
-form.addEventListener("input", handleInput);
-
-function handleInput(event) {
-    const key = event.target.name;
-
-    formData[key] = event.target.value;
-
-    localStorage.setItem("feedback-form-state", JSON.stringify(formData));
-};
-
-function getText() {
-    const data = JSON.parse(localStorage.getItem("feedback-form-state"));
-
-    console.log(data);
-    if (!data) {
-        return;
-    }
-
-    const { email, message } = form.elements;
-     email.value = data.email;
-     message.value = data.message;
-
+function saveFormData() {
+  localStorage.setItem(formDataKey, JSON.stringify(formData));
 }
 
-console.log(getText());
-
-
-form.addEventListener("submit", handleSubmit);
-
-function handleSubmit(event) {
-    event.preventDefault();
-
-  
-    if (formData.email.trim() === '' || formData.message.trim( )=== '') {
-        alert(`Fill please all fields`);
-    }
-    console.log(formData);
-   
-    localStorage.removeItem("feedback-form-state");
-    formData.email = '';
-    formData.message = '';
-    form.reset();
+function updateFormData(event) {
+  const { name, value } = event.target;
+  formData[name] = value.trim();
+  saveFormData();
 }
-  
+
+form.email.value = formData.email;
+form.message.value = formData.message;
+
+form.addEventListener('submit', function (event) {
+  event.preventDefault();
+
+  if (!formData.email.trim() || !formData.message.trim()) {
+    alert('Fill please all fields');
+    return;
+  }
+
+  console.log(formData);
+  localStorage.removeItem(formDataKey);
+  form.reset();
+  Object.assign(formData, { email: '', message: '' });
+});
